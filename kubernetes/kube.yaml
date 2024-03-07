@@ -1,0 +1,53 @@
+# frontend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend # it is used in frontend-service 
+    spec:
+      containers:
+      - name: frontend
+        image: mayank7833/newnginx13:latest
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/usr/sbin/nginx","-s","quit"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 512Mi
+        ports:
+        - containerPort: 80
+        env:
+        - name: REACT_APP_CUSTOM_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: frontend-token-secret  # Name of the secret
+              key: frontend_token_value  # Key in the secret
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
