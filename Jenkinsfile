@@ -27,11 +27,21 @@ pipeline {
             }
         }
 
-         stage('Database Setup') {
-            steps {
-                // Run database migrations
+         stage('Database Migration') {
+    steps {
+        script {
+            // Check if migrations are needed
+            def migrationsNeeded = sh(script: 'python manage.py showmigrations --plan', returnStdout: true).trim()
+            if (migrationsNeeded.contains(' (no migrations)')) {
+                echo 'No new migrations found.'
+            } else {
+                // Run migrations
                 sh 'python manage.py migrate'
             }
+        }
+    }
+}
+
         }
 
     
