@@ -21,11 +21,19 @@ pipeline {
         }
         
         stage('Create Database') {
-            steps {
+    steps {
+        script {
+            // Check if the database exists
+            def databaseExists = sh(script: 'python mydb_check.py', returnStatus: true)
+            if (databaseExists == 0) {
+                echo 'Database already exists. Skipping creation.'
+            } else {
                 // Run database creation script
                 sh 'python mydb.py'
             }
         }
+    }
+}
 
          stage('Database Migration') {
     steps {
