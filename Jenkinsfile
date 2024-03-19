@@ -50,7 +50,25 @@ pipeline {
     }
 }
 
+stage('Dockerize')
+       {
+            steps(
+                // Build the Docker image
+                sh 'docker build -t $DOCKER_USERNAME/myapp:latest .'
+                // Login to Docker Hub
+                sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
+                // Push the Docker image to Docker Hub
+                sh 'docker push $DOCKER_USERNAME/myapp:latest'
+            }
         }
+    }
+
+
+
+
+
+
+
 
     
     post {
