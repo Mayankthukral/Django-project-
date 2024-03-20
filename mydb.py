@@ -1,7 +1,12 @@
 import psycopg2
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Retrieve sensitive information from environment variables
+
 
 # Connect to Azure PostgreSQL using the provided server name
 connection = psycopg2.connect(
@@ -12,7 +17,6 @@ connection = psycopg2.connect(
     port=os.environ.get('DB_PORT'),  # Default PostgreSQL port
     sslmode='require' # Add SSL mode for secure connection
 )
-
 
 # Set autocommit to True
 connection.autocommit = True
