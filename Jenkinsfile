@@ -7,7 +7,7 @@ pipeline {
         disableConcurrentBuilds() // Disable concurrent builds to ensure sequential execution
     }
 
-        
+    stages{
         stage('Setup Environment') {
             steps {
                 // Set up Python environment
@@ -60,7 +60,7 @@ pipeline {
             }
         }
     }
-    
+}
 
     
     post {
