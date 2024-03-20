@@ -1,6 +1,19 @@
 pipeline {
     agent {
-        label 'slave-1' // Specify the label of the virtual machine agent
+            docker {
+                image 'djangoagent:latest'// Specify the label of the virtual machine agent
+    }
+    }
+
+    parameters {
+        string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
+        string(name: 'DB_PORT', defaultValue: '5432', description: 'Database port')
+        DB_USER = credentials('DB_USER')
+        DB_PASSWORD = credentials('DB_PASSWORD') 
+        DB_HOST = credentials('DB_HOST') 
+        DOCKER_USERNAME = credentials('DOCKER_USERNAME')
+        DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
+        // Add more parameters as needed
     }
     
     options {
@@ -10,11 +23,7 @@ pipeline {
     stages{
         stage('Setup Environment') {
             steps {
-                // Set up Python environment
-                sh 'python3 -m venv venv' // Use 'python3' for Python 3.x
-                sh '. venv/bin/activate' // Use dot (.) to source the virtual environment
-                
-                // Install dependencies
+                 // Install dependencies
                 sh 'pip install -r requirements.txt'
             }
         }
