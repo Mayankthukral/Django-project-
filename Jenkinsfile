@@ -33,8 +33,8 @@ pipeline {
         DB_HOST = credentials('DB_HOST')  // Assuming DB_HOST is a Jenkins credential ID for your database host
         DB_USER = credentials('DB_USER')  // Assuming DB_USER is a Jenkins credential ID for your database user
         DB_PASSWORD = credentials('DB_PASSWORD')  // Assuming DB_PASSWORD is a Jenkins credential ID for your database password
-        DB_PORT = params.DB_PORT  // Using the DB_PORT parameter from the pipeline
-        DB_NAME = params.DB_NAME  // Using the DB_NAME parameter from the pipeline
+        DB_NAME = "${params.DB_NAME}"
+        DB_PORT = "${params.DB_PORT}"
     }
                  {
                     script {
