@@ -1,7 +1,7 @@
 pipeline {
     agent {
             docker {
-                image 'mayank7833/djangoagent:latest'// Specify the label of the virtual machine agent
+                image 'mayank7833/djangoagent1:latest'// Specify the label of the virtual machine agent
     }
     }
 
@@ -25,6 +25,9 @@ pipeline {
     stages{
         stage('Setup Environment') {
             steps {
+                sh 'python3 -m venv venv' // Create a virtual environment
+                sh '. venv/bin/activate' // Activate the virtual environment
+           
                  // Install dependencies
                 sh 'pip install -r requirements.txt'
             }
