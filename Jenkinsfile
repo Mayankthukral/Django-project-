@@ -15,6 +15,7 @@ pipeline {
 
     stages {
         stage('Setup Environment') {
+            
             steps {
                 script {
                     // Create a virtual environment and activate it
@@ -26,13 +27,16 @@ pipeline {
             }
         }
         
-        /*stage('Create Database') {
+        stage('Create Database') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
-                    string(credentialsId: 'DB_USER', variable: 'DB_USER'),
-                    string(credentialsId: 'DB_HOST', variable: 'DB_HOST')
-                ]) {
+                environment {
+        DB_HOST = credentials('DB_HOST')  // Assuming DB_HOST is a Jenkins credential ID for your database host
+        DB_USER = credentials('DB_USER')  // Assuming DB_USER is a Jenkins credential ID for your database user
+        DB_PASSWORD = credentials('DB_PASSWORD')  // Assuming DB_PASSWORD is a Jenkins credential ID for your database password
+        DB_PORT = params.DB_PORT  // Using the DB_PORT parameter from the pipeline
+        DB_NAME = params.DB_NAME  // Using the DB_NAME parameter from the pipeline
+    }
+                 {
                     script {
                         // Check if the database exists
                         def databaseExists = sh(script: 'python mydb_check.py', returnStatus: true)
@@ -47,7 +51,7 @@ pipeline {
             }
         }
         
-        stage('Database Migration') {
+        /*stage('Database Migration') {
             steps {
                 script {
                     // Check if migrations are needed
