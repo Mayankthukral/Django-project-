@@ -1,7 +1,7 @@
 pipeline {
     agent {
             docker {
-                image 'djangoagent:latest'// Specify the label of the virtual machine agent
+                image 'mayank7833/djangoagent:latest'// Specify the label of the virtual machine agent
     }
     }
 
