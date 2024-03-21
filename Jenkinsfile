@@ -1,7 +1,6 @@
 pipeline {
     agent {
-            docker {
-                image 'mayank7833/djangoagent1:latest'// Specify the label of the virtual machine agent
+        slave-1
     }
     }
 
