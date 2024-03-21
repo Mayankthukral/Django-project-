@@ -26,7 +26,7 @@ pipeline {
             }
         }
         
-        stage('Create Database') {
+        /*stage('Create Database') {
             steps {
                 withCredentials([
                     string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
@@ -71,7 +71,7 @@ pipeline {
                 // Push the Docker image to Docker Hub
                 sh 'docker push $DOCKER_USERNAME/myapp:latest'
             }
-        }
+        }*/
     }
 
     post {
