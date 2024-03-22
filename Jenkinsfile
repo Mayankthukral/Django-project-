@@ -1,7 +1,5 @@
 pipeline {
-     agent {
-        label 'slave-1' // Specify the label of the desired agent
-    }
+     agent any
 
     parameters {
         string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
