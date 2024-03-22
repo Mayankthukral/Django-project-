@@ -27,23 +27,21 @@ pipeline {
         
         stage('Create Database') {
             steps {
-                environment {
-        DB_HOST = credentials('DB_HOST')  // Assuming DB_HOST is a Jenkins credential ID for your database host
-        DB_USER = credentials('DB_USER')  // Assuming DB_USER is a Jenkins credential ID for your database user
-        DB_PASSWORD = credentials('DB_PASSWORD')  // Assuming DB_PASSWORD is a Jenkins credential ID for your database password
-        DB_NAME = "${params.DB_NAME}"
-        DB_PORT = "${params.DB_PORT}"
-    }
-                 {
-                    script {
-                        // Check if the database exists
-                        def databaseExists = sh(script: 'python mydb_check.py', returnStatus: true)
-                        if (databaseExists == 0) {
-                            echo 'Database already exists. Skipping creation.'
-                        } else {
-                            // Run database creation script
-                            sh 'python mydb.py'
-                        }
+                script {
+                    environment {
+                        DB_HOST = credentials('DB_HOST')  // Assuming DB_HOST is a Jenkins credential ID for your database host
+                        DB_USER = credentials('DB_USER')  // Assuming DB_USER is a Jenkins credential ID for your database user
+                        DB_PASSWORD = credentials('DB_PASSWORD')  // Assuming DB_PASSWORD is a Jenkins credential ID for your database password
+                        DB_NAME = "${params.DB_NAME}"
+                        DB_PORT = "${params.DB_PORT}"
+                    }
+                    // Check if the database exists
+                    def databaseExists = sh(script: 'python mydb_check.py', returnStatus: true)
+                    if (databaseExists == 0) {
+                        echo 'Database already exists. Skipping creation.'
+                    } else {
+                        // Run database creation script
+                        sh 'python mydb.py'
                     }
                 }
             }
