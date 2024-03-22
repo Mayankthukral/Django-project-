@@ -22,3 +22,6 @@ python mydb.py
 
  # To apply database migrations.
 python manage.py migrate 
+
+# To run server 
+python manage.py runserver
