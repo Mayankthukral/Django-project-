@@ -1,1 +1,4 @@
 virtual/ 
+.env
+website/migrations/__pycache__/0001_initial.cpython-312.pyc
+dcrm/__pycache__/settings.cpython-312.pyc

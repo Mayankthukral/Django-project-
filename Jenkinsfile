@@ -1,39 +1,106 @@
 pipeline {
-    agent any
+      agent {
+    docker {
+      image 'mayank7833/djangoagent1:latest'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+    }
+  }
+    parameters {
+        string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
+        string(name: 'DB_PORT', defaultValue: '5432', description: 'Database port')
+        // Add more parameters as needed
+    }
+    
+    options {
+        disableConcurrentBuilds() // Disable concurrent builds to ensure sequential execution
+    }
     
     stages {
-        stage('Checkout') {
+        stage('Install Ansible') {
             steps {
-                // Checkout code from version control
-                git 'https://github.com/yourusername/yourrepository.git'
+                script {
+                    // Install Ansible using apt-get on Ubuntu
+                    sh 'sudo apt-get update -y'
+                    sh 'sudo apt-get install software-properties-common -y'
+                    sh 'sudo apt-add-repository --yes --update ppa:ansible/ansible'
+                    sh 'sudo apt-get install ansible -y'
+                    
+                    // Check Ansible version
+                    sh 'ansible --version'
+                }
             }
         }
+
+        stage('Install Python and Pip') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'required-installations.yaml',
+                    inventory: 'localhost',
+                    installation: 'ansible'
+                )
+            }
+        } 
         
         stage('Setup Environment') {
             steps {
-                // Set up Python environment
-                sh 'python -m venv venv'
-                sh 'source venv/bin/activate'
-                
-                // Install dependencies
-                sh 'pip install -r requirements.txt'
+                script {
+                    // Create a virtual environment and activate it
+                    sh 'python3 -m venv venv'
+                    sh '. venv/bin/activate'
+                    // Install dependencies
+                    sh 'pip install -r requirements.txt'
+                }
             }
         }
         
-        stage('Create Database') {
+        /*stage('Create Database') {
             steps {
-                // Run database creation script
-                sh 'python mydb.py'
+                script {
+                    environment {
+                        DB_HOST = credentials('DB_HOST')  // Assuming DB_HOST is a Jenkins credential ID for your database host
+                        DB_USER = credentials('DB_USER')  // Assuming DB_USER is a Jenkins credential ID for your database user
+                        DB_PASSWORD = credentials('DB_PASSWORD')  // Assuming DB_PASSWORD is a Jenkins credential ID for your database password
+                        DB_NAME = "${params.DB_NAME}"
+                        DB_PORT = "${params.DB_PORT}"
+                    }
+                    // Check if the database exists
+                    def databaseExists = sh(script: 'python mydb_check.py', returnStatus: true)
+                    if (databaseExists == 0) {
+                        echo 'Database already exists. Skipping creation.'
+                    } else {
+                        // Run database creation script
+                        sh 'python mydb.py'
+                    }
+                }
             }
-        }
-
-         stage('Database Setup') {
+        }*/
+        
+        /*stage('Database Migration') {
             steps {
-                // Run database migrations
-                sh 'python manage.py migrate'
+                script {
+                    // Check if migrations are needed
+                    def migrationsNeeded = sh(script: 'python manage.py showmigrations --plan', returnStdout: true).trim()
+                    if (migrationsNeeded.contains(' (no migrations)')) {
+                        echo 'No new migrations found.'
+                    } else {
+                        // Run migrations
+                        sh 'python manage.py migrate'
+                    }
+                }
             }
-        }
-
+        }*/
+        
+        /*stage('Dockerize') {
+            steps {
+                // Build the Docker image
+                sh 'docker build -t $DOCKER_USERNAME/myapp:latest .'
+                // Login to Docker Hub
+                sh "echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin"
+                // Push the Docker image to Docker Hub
+                sh 'docker push $DOCKER_USERNAME/myapp:latest'
+            }
+        }*/
+    }
     
     post {
         success {

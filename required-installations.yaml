@@ -1,0 +1,19 @@
+---
+- name: Install Python and Pip on Ubuntu
+  hosts: localhost # Replace with your target hosts or group
+  become: yes  # Run tasks with sudo privileges
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Python
+      apt:
+        name: python3  # Install Python 3
+        state: present  # Ensure Python is installed
+
+    - name: Install Pip for Python 3
+      apt:
+        name: python3-pip  # Install Pip for Python 3
+        state: present  # Ensure Pip is installed
