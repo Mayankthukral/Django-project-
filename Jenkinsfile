@@ -2,7 +2,7 @@ pipeline {
       agent {
     docker {
       image 'mayank7833/djangoagent1:latest'
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker 
     }
   }
     parameters {
