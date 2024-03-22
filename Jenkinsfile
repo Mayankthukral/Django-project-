@@ -1,16 +1,16 @@
 pipeline {
-     agent any
-
+    agent any
+    
     parameters {
         string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
         string(name: 'DB_PORT', defaultValue: '5432', description: 'Database port')
         // Add more parameters as needed
     }
-
+    
     options {
         disableConcurrentBuilds() // Disable concurrent builds to ensure sequential execution
     }
-
+    
     stages {
         stage('Install Ansible') {
             steps {
@@ -27,7 +27,6 @@ pipeline {
             }
         }
 
-       stages {
         stage('Install Python and Pip') {
             steps {
                 ansiblePlaybook(
@@ -37,8 +36,8 @@ pipeline {
                 )
             }
         } 
+        
         stage('Setup Environment') {
-            
             steps {
                 script {
                     // Create a virtual environment and activate it
@@ -70,7 +69,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         
         /*stage('Database Migration') {
             steps {
@@ -85,9 +84,9 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         
-        stage('Dockerize') {
+        /*stage('Dockerize') {
             steps {
                 // Build the Docker image
                 sh 'docker build -t $DOCKER_USERNAME/myapp:latest .'
@@ -98,7 +97,7 @@ pipeline {
             }
         }*/
     }
-
+    
     post {
         success {
             // Send notification on success
@@ -109,5 +108,4 @@ pipeline {
             echo 'Pipeline failed!'
         }
     }
-}
 }
