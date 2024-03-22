@@ -1,6 +1,10 @@
 pipeline {
-    agent any
-    
+      agent {
+    docker {
+      image 'mayank7833/djangoagent1:latest'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+    }
+  }
     parameters {
         string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
         string(name: 'DB_PORT', defaultValue: '5432', description: 'Database port')
