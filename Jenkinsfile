@@ -62,7 +62,7 @@ pipeline {
                         env.DB_PORT = "${params.DB_PORT}"
 
                         // Check if the database exists by running the check_db.sh script
-                        def databaseExists = sh(script: './check_db.sh', returnStatus: true)
+                        def databaseExists = sh(script: 'chmod +x ./check_db.sh && ./check_db.sh', returnStatus: true)
                         if (databaseExists == 0) {
                             echo 'Database already exists. Skipping creation.'
                         } else {
