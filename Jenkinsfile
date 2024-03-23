@@ -36,7 +36,7 @@ pipeline {
             }
         } 
         
-       /* stage('Setup Environment') {
+        stage('Setup Environment') {
             steps {
                 script {
                     // Create a virtual environment and activate it
