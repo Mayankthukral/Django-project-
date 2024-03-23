@@ -1,10 +1,5 @@
 pipeline {
-      agent {
-    docker {
-      image 'mayank7833/djangoagent1:latest'
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
-    }
-  }
+      agent any 
     parameters {
         string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
         string(name: 'DB_PORT', defaultValue: '5432', description: 'Database port')
@@ -41,7 +36,7 @@ pipeline {
             }
         } 
         
-       /* stage('Setup Environment') {
+        stage('Setup Environment') {
             steps {
                 script {
                     // Create a virtual environment and activate it
@@ -53,42 +48,56 @@ pipeline {
             }
         }
         
-        /*stage('Create Database') {
+        stage('Create Database') {
             steps {
                 script {
-                    environment {
-                        DB_HOST = credentials('DB_HOST')  // Assuming DB_HOST is a Jenkins credential ID for your database host
-                        DB_USER = credentials('DB_USER')  // Assuming DB_USER is a Jenkins credential ID for your database user
-                        DB_PASSWORD = credentials('DB_PASSWORD')  // Assuming DB_PASSWORD is a Jenkins credential ID for your database password
-                        DB_NAME = "${params.DB_NAME}"
-                        DB_PORT = "${params.DB_PORT}"
-                    }
-                    // Check if the database exists
-                    def databaseExists = sh(script: 'python mydb_check.py', returnStatus: true)
-                    if (databaseExists == 0) {
-                        echo 'Database already exists. Skipping creation.'
-                    } else {
-                        // Run database creation script
-                        sh 'python mydb.py'
+                    // Inject credentials into environment variables
+                    withCredentials([
+                        string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                        string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                        string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+                    ]) {
+                        // Set other environment variables
+                        env.DB_NAME = "${params.DB_NAME}"
+                        env.DB_PORT = "${params.DB_PORT}"
+
+                        // Check if the database exists by running the check_db.sh script
+                        def databaseExists = sh(script: 'chmod +x ./check_db.sh && ./check_db.sh', returnStatus: true)
+                        if (databaseExists == 0) {
+                            echo 'Database already exists. Skipping creation.'
+                        } else {
+                            // If the database does not exist, run the mydb.py script
+                            sh 'python3 mydb.py'
+                        }
                     }
                 }
             }
-        }*/
+        }
         
-        /*stage('Database Migration') {
+        stage('Database Migration') {
             steps {
                 script {
-                    // Check if migrations are needed
-                    def migrationsNeeded = sh(script: 'python manage.py showmigrations --plan', returnStdout: true).trim()
-                    if (migrationsNeeded.contains(' (no migrations)')) {
-                        echo 'No new migrations found.'
-                    } else {
-                        // Run migrations
-                        sh 'python manage.py migrate'
+                    withCredentials([
+                        string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                        string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                        string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+                    ]) {
+                        // Set other environment variables
+                        env.DB_NAME = "${params.DB_NAME}"
+                        env.DB_PORT = "${params.DB_PORT}"
+                        
+                        // Check if migrations are needed
+                        def migrationsNeeded = sh(script: 'python3 manage.py showmigrations --plan', returnStdout: true).trim()
+                        if (migrationsNeeded.contains(' (no migrations)')) {
+                            echo 'No new migrations found.'
+                        } else {
+                            // Run migrations
+                            sh 'python3 manage.py migrate'
+                        }
                     }
                 }
             }
-        }*/
+        }
         
         /*stage('Dockerize') {
             steps {
