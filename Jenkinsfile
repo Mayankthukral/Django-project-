@@ -74,20 +74,30 @@ pipeline {
             }
         }
         
-        /*stage('Database Migration') {
+        stage('Database Migration') {
             steps {
                 script {
-                    // Check if migrations are needed
-                    def migrationsNeeded = sh(script: 'python manage.py showmigrations --plan', returnStdout: true).trim()
-                    if (migrationsNeeded.contains(' (no migrations)')) {
-                        echo 'No new migrations found.'
-                    } else {
-                        // Run migrations
-                        sh 'python3 manage.py migrate'
+                    withCredentials([
+                        string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                        string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                        string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+                    ]) {
+                        // Set other environment variables
+                        env.DB_NAME = "${params.DB_NAME}"
+                        env.DB_PORT = "${params.DB_PORT}"
+                        
+                        // Check if migrations are needed
+                        def migrationsNeeded = sh(script: 'python manage.py showmigrations --plan', returnStdout: true).trim()
+                        if (migrationsNeeded.contains(' (no migrations)')) {
+                            echo 'No new migrations found.'
+                        } else {
+                            // Run migrations
+                            sh 'python manage.py migrate'
+                        }
                     }
                 }
             }
-        }*/
+        }
         
         /*stage('Dockerize') {
             steps {
