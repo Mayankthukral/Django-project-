@@ -48,7 +48,7 @@ pipeline {
             }
         }
         
-        /*stage('Create Database') {
+        ('Create Database') {
             steps {
                 script {
                     environment {
@@ -68,7 +68,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
         
         /*stage('Database Migration') {
             steps {
