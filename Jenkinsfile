@@ -49,26 +49,30 @@ pipeline {
         }
         
         stage('Create Database') {
-            steps {
-                script {
-                    environment {
-                        DB_HOST = credentials('DB_HOST')  // Assuming DB_HOST is a Jenkins credential ID for your database host
-                        DB_USER = credentials('DB_USER')  // Assuming DB_USER is a Jenkins credential ID for your database user
-                        DB_PASSWORD = credentials('DB_PASSWORD')  // Assuming DB_PASSWORD is a Jenkins credential ID for your database password
-                        DB_NAME = "${params.DB_NAME}"
-                        DB_PORT = "${params.DB_PORT}"
-                    }
-                    // Check if the database exists
-                    def databaseExists = sh(script: 'python mydb_check.py', returnStatus: true)
-                    if (databaseExists == 0) {
-                        echo 'Database already exists. Skipping creation.'
-                    } else {
-                        // Run database creation script
-                        sh 'python3 mydb.py'
-                    }
+    steps {
+        script {
+            // Inject credentials into environment variables
+            withCredentials([
+                string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                password(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+            ]) {
+                // Set other environment variables
+                env.DB_NAME = "${params.DB_NAME}"
+                env.DB_PORT = "${params.DB_PORT}"
+
+                // Check if the database exists by running the check_db.sh script
+                def databaseExists = sh(script: './check_db.sh', returnStatus: true)
+                if (databaseExists == 0) {
+                    echo 'Database already exists. Skipping creation.'
+                } else {
+                    // If the database does not exist, run the mydb.py script
+                    sh 'python3 mydb.py'
                 }
             }
         }
+    }
+}
         
         /*stage('Database Migration') {
             steps {
@@ -79,7 +83,7 @@ pipeline {
                         echo 'No new migrations found.'
                     } else {
                         // Run migrations
-                        sh 'python manage.py migrate'
+                        sh 'python3 manage.py migrate'
                     }
                 }
             }
