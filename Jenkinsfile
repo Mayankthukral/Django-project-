@@ -55,7 +55,7 @@ pipeline {
                     withCredentials([
                         string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
                         string(credentialsId: 'DB_USER', variable: 'DB_USER'),
-                        password(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+                        string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
                     ]) {
                         // Set other environment variables
                         env.DB_NAME = "${params.DB_NAME}"
