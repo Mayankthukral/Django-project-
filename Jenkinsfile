@@ -64,7 +64,7 @@ pipeline {
                         echo 'Database already exists. Skipping creation.'
                     } else {
                         // Run database creation script
-                        sh 'python mydb.py'
+                        sh 'python3 mydb.py'
                     }
                 }
             }
