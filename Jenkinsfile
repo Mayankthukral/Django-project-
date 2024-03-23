@@ -87,12 +87,12 @@ pipeline {
                         env.DB_PORT = "${params.DB_PORT}"
                         
                         // Check if migrations are needed
-                        def migrationsNeeded = sh(script: 'python manage.py showmigrations --plan', returnStdout: true).trim()
+                        def migrationsNeeded = sh(script: 'python3 manage.py showmigrations --plan', returnStdout: true).trim()
                         if (migrationsNeeded.contains(' (no migrations)')) {
                             echo 'No new migrations found.'
                         } else {
                             // Run migrations
-                            sh 'python manage.py migrate'
+                            sh 'python3 manage.py migrate'
                         }
                     }
                 }
