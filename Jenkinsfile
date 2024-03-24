@@ -107,8 +107,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'sonarqubeToken', variable: 'sonarqubeToken')]) {
+                        // Assuming 'SONAR_URL' is a parameter defined in your pipeline
                         env.SONAR_URL = "${params.SONAR_URL}"
-                        sh "sonar-scanner -Dsonar.host.url=${env.SONAR_URL} -Dsonar.login=${sonarqubeToken}"
+                        sh "sonar-scanner -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${sonarqubeToken}"
                     }
                 }
             }
