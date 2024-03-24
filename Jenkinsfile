@@ -1,5 +1,5 @@
 pipeline {
-      agent any 
+    agent any 
     parameters {
         string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
         string(name: 'DB_PORT', defaultValue: '5432', description: 'Database port')
@@ -100,9 +100,6 @@ pipeline {
             }
         }
 
-        
-        }
-
         stage('Static Code Analysis using SonarQube') {
             steps {
                 script {
@@ -126,3 +123,4 @@ pipeline {
             echo 'Pipeline failed!'
         }
     }
+}
