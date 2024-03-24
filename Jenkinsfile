@@ -3,6 +3,7 @@ pipeline {
     parameters {
         string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
         string(name: 'DB_PORT', defaultValue: '5432', description: 'Database port')
+        string(name: 'SONAR_URL', defaultValue: 'http://20.151.87.193:9000', description: 'Sonarqube URL')
         // Add more parameters as needed
     }
     
@@ -95,6 +96,19 @@ pipeline {
                             sh 'python3 manage.py migrate'
                         }
                     }
+                }
+            }
+        }
+
+        
+        }
+
+        stage('Static Code Analysis using SonarQube') {
+        
+            steps {
+                withCredentials([string(credentialsId: 'sonarqubeToken', variable: 'sonarqubeToken')]) {
+                    env.SONAR_URL = "${params.SONAR_URL}"
+                    sh 'sonar-scanner -Dsonar.host.url=${SONAR_URL} -Dsonar.login=$sonarqubeToken'
                 }
             }
         }
