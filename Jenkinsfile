@@ -104,15 +104,15 @@ pipeline {
         }
 
         stage('Static Code Analysis using SonarQube') {
-        
             steps {
-                withCredentials([string(credentialsId: 'sonarqubeToken', variable: 'sonarqubeToken')]) {
-                    env.SONAR_URL = "${params.SONAR_URL}"
-                    sh 'sonar-scanner -Dsonar.host.url=${SONAR_URL} -Dsonar.login=$sonarqubeToken'
+                script {
+                    withCredentials([string(credentialsId: 'sonarqubeToken', variable: 'sonarqubeToken')]) {
+                        env.SONAR_URL = "${params.SONAR_URL}"
+                        sh "sonar-scanner -Dsonar.host.url=${env.SONAR_URL} -Dsonar.login=${sonarqubeToken}"
+                    }
                 }
             }
         }
-        
         /*stage('Dockerize') {
             steps {
                 // Build the Docker image
@@ -135,4 +135,4 @@ pipeline {
             echo 'Pipeline failed!'
         }
     }
-
+}
