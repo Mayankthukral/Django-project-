@@ -105,7 +105,7 @@ pipeline {
                 script {
                     withCredentials([string(credentialsId: 'sonarqubeToken', variable: 'sonarqubeTokenvariable')]) {
                         // Assuming 'SONAR_URL' is a parameter defined in your pipeline
-                        env.SONAR_URL = "${params.SONAR_URL}"
+                        env.SONAR_URL = http://20.151.87.193:9000
                         sh 'sonar-sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=$sonarqubeTokenvariable'
                     }
                 }
