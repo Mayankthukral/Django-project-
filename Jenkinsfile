@@ -104,7 +104,7 @@ pipeline {
             steps {
                 script {
 
-                        sh 'python manage.py test website'
+                        sh 'python3 manage.py test website'
                     }
                 }
             }
