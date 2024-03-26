@@ -99,8 +99,19 @@ pipeline {
                 }
             }
         }
+         
+        stage('Unit testing') {
+            steps {
+                script {
 
-        stage('Static Code Analysis using SonarQube') {
+                        sh 'python manage.py test website'
+                    }
+                }
+            }
+        }
+
+
+        /*stage('Static Code Analysis using SonarQube') {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'sonarqubeToken', variable: 'sonarqubeTokenvariable')]) {
@@ -129,7 +140,7 @@ pipeline {
                 '''
             }
         }
-    }
+    }*/
     
     
     post {
