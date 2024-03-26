@@ -116,38 +116,7 @@ pipeline {
                 }
             }
         }
-
-
-        /*stage('Static Code Analysis using SonarQube') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'sonarqubeToken', variable: 'sonarqubeTokenvariable')]) {
-                        // Assuming 'SONAR_URL' is a parameter defined in your pipeline
-                        env.SONAR_URL = http://20.151.87.193:9000
-                        sh 'sonar-sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=$sonarqubeTokenvariable'
-                    }
-                }
-            }
-        }
-        stage('Update Deployment File') {
-        environment {
-            GIT_REPO_NAME = "Django-Project"
-            GIT_USER_NAME = "mayank91091"
-        }
-        steps {
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                sh '''
-                    git config user.email "mayankthukral1810@gmail.com"
-                    git config user.name "mayank91091"
-                    BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" ./deployment.yml
-                    git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                '''
-            }
-        }
-    }*/
+    }
     
     
     post {
