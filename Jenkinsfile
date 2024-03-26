@@ -99,10 +99,17 @@ pipeline {
                 }
             }
         }
-         
         stage('Unit testing') {
             steps {
                 script {
+                    withCredentials([
+                        string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                        string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                        string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+                    ]) {
+                        // Set other environment variables
+                        env.DB_NAME = "${params.DB_NAME}"
+                        env.DB_PORT = "${params.DB_PORT}"
 
                         sh 'python3 manage.py test website'
                     }
