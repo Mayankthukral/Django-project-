@@ -116,6 +116,13 @@ pipeline {
                 }
             }
         }
+        stage('SonarCloud Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqubeToken') {
+                    sh 'sonar-scanner'
+                }
+            }
+        }
     }
     
     
