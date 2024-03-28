@@ -119,7 +119,7 @@ pipeline {
         stage('SonarQube analysis') {
             steps {
                 script {
-                    scannerHome = tool 'sonar-scanner-5.0.1.3006' 
+                    scannerHome = tool 'sonar-scanner' 
                 }
                 withSonarQubeEnv('SonarCloud') {
                 sh "${scannerHome}/bin/sonar-scanner"
