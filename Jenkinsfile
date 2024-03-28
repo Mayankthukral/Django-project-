@@ -116,17 +116,19 @@ pipeline {
                 }
             }
         }
-        stage('SonarCloud Analysis') {
+        stage('SonarQube analysis') {
             steps {
-                withSonarQubeEnv('sonarqubeToken') {
-                    sh 'sonar-scanner'
+                script {
+                    scannerHome = tool 'sonar-scanner-5.0.1.3006' 
+                }
+                withSonarQubeEnv('SonarCloud') {
+                sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
-        }
-    }
+            }
     
     
-    post {
+    post {  
         success {
             // Send notification on success
             echo 'Pipeline succeeded!'
