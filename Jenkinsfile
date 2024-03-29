@@ -120,9 +120,10 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'sonartoken', variable: 'SONARTOKEN')]) {
-                        withSonarQubeEnv('SonarCloud') {
+                        def scannerHome = tool 'sonarscanner'
+                        withSonarQubeEnv('SonarCloud') {                        
                             sh """
-                                ${scannerHome}/bin/sonar-scanner \
+                                ${scannerHome}/sonar-scanner \
                                 -Dsonar.host.url=https://sonarcloud.io \
                                 -Dsonar.login=${SONARTOKEN} \
                                 -Dsonar.projectVersion=1.0 \
