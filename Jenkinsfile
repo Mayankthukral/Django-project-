@@ -116,15 +116,15 @@ pipeline {
                 }
             }
         }
-        stage('SonarQube analysis') {
-            steps {
-                script {
-                    scannerHome = tool 'sonar-scanner' 
+            stage('SonarQube Analysis') {
+                steps {
+                    script {
+                        def scannerHome = tool 'SonarScanner'
+                        withSonarQubeEnv() {
+                            sh "${scannerHome}/bin/sonar-scanner"
+                        }
+                    }
                 }
-                withSonarQubeEnv('SonarCloud') {
-                sh "${scannerHome}/bin/sonar-scanner"
-                }
-            }
             }
     }
     
