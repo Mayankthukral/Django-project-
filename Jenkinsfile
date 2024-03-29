@@ -119,13 +119,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'sonartoken', variable: 'sonartoken')]) {
-                        def scannerHome = tool 'sonarscanner'
+                    withCredentials([string(credentialsId: 'sonartoken', variable: 'SONARTOKEN')]) {
                         withSonarQubeEnv('SonarCloud') {
                             sh """
                                 ${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.host.url=https://sonarcloud.io \
-                                -Dsonar.login=${sonartoken} \
+                                -Dsonar.login=${SONARTOKEN} \
                                 -Dsonar.projectVersion=1.0 \
                                 -Dsonar.organization=mayank91091 \
                                 -Dsonar.projectKey=mayank91091_Django-project \
