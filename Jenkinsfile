@@ -116,17 +116,30 @@ pipeline {
                 }
             }
         }
-            stage('SonarQube Analysis') {
-                steps {
-                    script {
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'sonartoken', variable: 'sonartoken')]) {
                         def scannerHome = tool 'SonarScanner'
-                        withSonarQubeEnv() {
-                            sh "${scannerHome}/bin/sonar-scanner"
+                        withSonarQubeEnv('SonarCloud') {
+                            sh """
+                                \${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.host.url=https://sonarcloud.io \
+                                -Dsonar.login=\$sonartoken \
+                                -Dsonar.projectVersion=1.0 \
+                                -Dsonar.organization=mayank91091 \
+                                -Dsonar.projectKey=mayank91091_Django-project \
+                                -Dsonar.sources=. \
+                                -Dsonar.language=py
+                            """
                         }
                     }
                 }
             }
+        }
+
     }
+
     
     
     post {  
