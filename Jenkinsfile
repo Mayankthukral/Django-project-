@@ -99,6 +99,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Unit testing') {
             steps {
                 script {
@@ -116,31 +117,24 @@ pipeline {
                 }
             }
         }
-        stage('SonarQube Analysis') {
+        
+        stage('Build and Push Docker Image') {
+            environment {
+                DOCKER_IMAGE = "mayank7833/django-jenkins:${BUILD_NUMBER}"
+                // DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
+                REGISTRY_CREDENTIALS = credentials('docker-cred')
+            }
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'sonartoken', variable: 'SONARTOKEN')]) {
-                        def scannerHome = tool 'sonarscanner'
-                        withSonarQubeEnv('SonarCloud') {                        
-                            sh """
-                                ${scannerHome}/sonar-scanner \
-                                -Dsonar.host.url=https://sonarcloud.io \
-                                -Dsonar.login=${SONARTOKEN} \
-                                -Dsonar.projectVersion=1.0 \
-                                -Dsonar.organization=mayank91091 \
-                                -Dsonar.projectKey=mayank91091_Django-project \
-                                -Dsonar.sources=. \
-                                -Dsonar.language=py
-                            """
-                        }
+                    sh ' docker build -t ${DOCKER_IMAGE} .'
+                    def dockerImage = docker.image("${DOCKER_IMAGE}")
+                    docker.withRegistry('https://index.docker.io/v1/', "docker-cred") {
+                        dockerImage.push()
                     }
                 }
             }
         }
-
     }
-
-    
     
     post {  
         success {
