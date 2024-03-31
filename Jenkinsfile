@@ -128,8 +128,8 @@ pipeline {
                     def dockerRegistry = 'https://index.docker.io/v1/'
 
                     // Build and push Docker image
-                    docker.build("mayank7833/django_jenkins:latest")
-                    docker.withRegistry(dockerRegistry, dockerHubCreds.username, dockerHubCreds.password) {
+                    docker.build("mayank7833/django-jenkins:latest")
+                    docker.withRegistry(dockerRegistry, dockerHubCreds.id, dockerHubCreds.password) {
                     docker.image("mayank7833/django-jenkins:latest").push("latest")
                     }
                 }
