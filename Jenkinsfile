@@ -118,20 +118,19 @@ pipeline {
             }
         }
         
-        stage('Build and Push Docker Image') {
-            environment {
-                DOCKER_IMAGE = "mayank7833/django-jenkins:${BUILD_NUMBER}"
-                // DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
-                REGISTRY_CREDENTIALS = credentials('docker-cred')
-            }
+        stage('Build and Push to Docker Hub') {
             steps {
                 script {
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
-                    def dockerImage = docker.image("${DOCKER_IMAGE}")
-                    withCredentials([string(credentialsId: 'docker-cred', variable: 'DOCKER_CRED')]) {
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_CRED) {
-                            dockerImage.push()
-                        }
+                    // Define Docker Hub PAT credentials
+                    def dockerHubCreds = credentials('docker_PAT')
+
+                    // Set Docker Hub registry URL
+                    def dockerRegistry = 'https://index.docker.io/v1/'
+
+                    // Build and push Docker image
+                    docker.build("mayank7833/django_jenkins:latest")
+                    docker.withRegistry(dockerRegistry, dockerHubCreds.username, dockerHubCreds.password) {
+                    docker.image("mayank7833/django-jenkins:latest").push("latest")
                     }
                 }
             }
