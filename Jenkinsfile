@@ -122,11 +122,12 @@ pipeline {
             environment {
                 DOCKER_IMAGE = "mayank7833/django-cicd:${BUILD_NUMBER}"
                 // DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
-                withCredentials([
-                        string(credentialsId: 'docker_PAT', variable: 'REGISTRY_CREDENTIALS')])
+                
             }
             steps {
                 script {
+                    withCredentials([
+                        string(credentialsId: 'docker_PAT', variable: 'REGISTRY_CREDENTIALS')])
                     sh ' docker build -t ${DOCKER_IMAGE} .'
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
                     docker.withRegistry('https://index.docker.io/v1/', "${REGISTRY_CREDENTIALS}") {
