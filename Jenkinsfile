@@ -125,7 +125,7 @@ pipeline {
                 withCredentials([
                         string(credentialsId: 'docker_PAT', variable: 'REGISTRY_CREDENTIALS')])
             }
-            steps 
+            steps {
                 script {
                     sh ' docker build -t ${DOCKER_IMAGE} .'
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
