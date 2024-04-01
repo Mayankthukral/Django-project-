@@ -119,17 +119,12 @@ pipeline {
         }
         
         stage('Build and Push Docker Image') {
-            environment {
-                DOCKER_IMAGE = "mayank7833/django-cicd:${BUILD_NUMBER}"
-                // DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
-                
-            }
             steps {
                 script {
                     // This step should not normally be used in your script. Consult the inline help for details.
                     withDockerRegistry(credentialsId: 'docker-cred') {
                         sh "docker build -t mayank7833/django-cicd:${BUILD_NUMBER} ."
-                        sh "docker push"
+                        sh "docker push mayank7833/django-cicd:${BUILD_NUMBER}"
                         // some block
                     }
                 }
