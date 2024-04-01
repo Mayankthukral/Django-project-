@@ -126,12 +126,11 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: 'docker_PAT', variable: 'REGISTRY_CREDENTIALS')])
-                    sh ' docker build -t ${DOCKER_IMAGE} .'
-                    def dockerImage = docker.image("${DOCKER_IMAGE}")
-                    docker.withRegistry('https://index.docker.io/v1/', "${REGISTRY_CREDENTIALS}") {
-                        dockerImage.push()
+                    // This step should not normally be used in your script. Consult the inline help for details.
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        sh "docker build -t mayank7833/django-cicd:${BUILD_NUMBER} ."
+                        sh "docker push"
+                        // some block
                     }
                 }
             }
