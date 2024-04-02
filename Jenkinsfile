@@ -120,7 +120,7 @@ pipeline {
         
         stage('SonarCloud Analysis') {
             tools {
-                Nodejs 'NodeJS'
+                nodejs 'Nodejs'
             }
             steps {
                 script {
