@@ -118,6 +118,9 @@ pipeline {
             }
         }
         stage('SonarCloud Analysis') {
+             environment {
+                NODEJS_HOME = tool 'NodeJS' // Specify the Node.js installation name
+            }
             steps {
                 script {
                     def scannerHome = tool 'sonarscanner'
