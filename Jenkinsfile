@@ -117,6 +117,23 @@ pipeline {
                 }
             }
         }
+        stage('SonarCloud Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'sonarscanner'
+                    withSonarQubeEnv('SonarCloud') {
+                        withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
+                            sh "${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.projectKey=mayank91091_Django-project- \
+                                -Dsonar.organization=mayank91091 \
+                                -Dsonar.host.url=https://sonarcloud.io \
+                                -Dsonar.sources=. \
+                                -Dsonar.login=${SONAR_TOKEN}"
+                        }
+                    }
+                }
+            }
+        }
         
         stage('Build and Push Docker Image') {
             steps {
