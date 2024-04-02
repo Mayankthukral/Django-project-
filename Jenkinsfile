@@ -118,20 +118,19 @@ pipeline {
             }
         }
         stage('SonarCloud Analysis') {
-             environment {
-                NODEJS_HOME = tool 'NodeJS' // Specify the Node.js installation name
-            }
             steps {
                 script {
-                    def scannerHome = tool 'sonarscanner'
-                    withSonarQubeEnv('SonarCloud') {
-                        withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
-                            sh "${scannerHome}/bin/sonar-scanner \
-                                -Dsonar.projectKey=mayank91091_Django-project- \
-                                -Dsonar.organization=mayank91091 \
-                                -Dsonar.host.url=https://sonarcloud.io \
-                                -Dsonar.sources=. \
-                                -Dsonar.login=${SONAR_TOKEN}"
+                    withNodeJS(nodeJSInstallationName: 'Nodejs') {
+                        def scannerHome = tool 'sonarscanner'
+                        withSonarQubeEnv('SonarCloud') {
+                            withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
+                                sh "${scannerHome}/bin/sonar-scanner \
+                                    -Dsonar.projectKey=mayank91091_Django-project- \
+                                    -Dsonar.organization=mayank91091 \
+                                    -Dsonar.host.url=https://sonarcloud.io \
+                                    -Dsonar.sources=. \
+                                    -Dsonar.login=${SONAR_TOKEN}"
+                            }
                         }
                     }
                 }
