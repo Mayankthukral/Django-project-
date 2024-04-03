@@ -151,6 +151,18 @@ pipeline {
                 }
             }
         }
+        stage('Login to Azure CLI') {
+            steps {
+                script {
+                    withCredentials([azureServicePrincipal('AZURE_CREDENTIALS_ID')]) {
+                        sh """
+                            az account set --subscription ${AZURE_SUBSCRIPTION_ID}
+                            az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} --tenant ${AZURE_TENANT_ID}
+                        """
+                    }
+                }
+            }
+        }
     }
     
     post {  
