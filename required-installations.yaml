@@ -38,13 +38,13 @@
       args:
         executable: /bin/bash
 
-    -name: install Azure cli 
+    - name: install Azure cli 
       apt:
         name: azure-cli
         state: present
         
     
-    -name: install terraform 
+    - name: install terraform 
       apt:
         name: terraform 
         state: present

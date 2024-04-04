@@ -118,7 +118,7 @@ pipeline {
             }
         }
         
-        stage('SonarCloud Analysis') {
+        /*stage('SonarCloud Analysis') {
             tools {
                 nodejs 'Nodejs'
             }
@@ -137,7 +137,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         
         stage('Build and Push Docker Image') {
             steps {
@@ -163,6 +163,34 @@ pipeline {
                 }
             }
         }
+        stages {
+        stage('Check AKS Cluster Existence') {
+            steps {
+                script {
+                    def clusterExists = sh (
+                        script: "az aks show --resource-group myresourcegroup --name myakscluster",
+                        returnStatus: true
+                    )
+                    if (clusterExists == 0) {
+                        echo "AKS cluster exists. Skipping creation stage."
+                    } else {
+                        echo "AKS cluster does not exist. Proceeding with creation stage."
+                        sh "cd {workspace}/kubernetescluster"
+                        sh """
+                        terraform init
+                        terraform validate
+                        terraform plan
+                        terraform apply -auto-approve
+                        terraform Output
+                        """
+
+                        
+                    }
+                }
+            }
+        }
+        
+    }
     }
     
     post {  
