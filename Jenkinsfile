@@ -118,26 +118,26 @@ pipeline {
             }
         }
         
-        /*stage('SonarCloud Analysis') {
-            tools {
-                nodejs 'Nodejs'
-            }
+        stage('SonarCloud Analysis') {
             steps {
                 script {
-                    def scannerHome = tool 'sonarscanner'
+                    // Define the SonarScanner tool installation
+                    def scannerHome = tool 'SonarScanner'
+
+                    // Execute SonarScanner within SonarQube environment
                     withSonarQubeEnv('SonarCloud') {
-                        withCredentials([string(credentialsId: 'sonartoken', variable: 'SONAR_TOKEN')]) {
-                            sh "${scannerHome}/bin/sonar-scanner \
-                                -Dsonar.projectKey=mayank91091_Django-project- \
-                                -Dsonar.organization=mayank91091 \
-                                -Dsonar.host.url=https://sonarcloud.io \
-                                -Dsonar.sources=. \
-                                -Dsonar.login=${SONAR_TOKEN}"
-                        }
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.organization=mayank-jenkins \
+                            -Dsonar.projectKey=mayank-jenkins_mayank-django \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=https://sonarcloud.io
+                        """
                     }
                 }
             }
-        }*/
+        }
+
         
         stage('Build and Push Docker Image') {
             steps {
