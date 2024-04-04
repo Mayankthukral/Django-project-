@@ -154,7 +154,12 @@ pipeline {
         stage('Login to Azure CLI') {
             steps {
                 script {
-                    withCredentials([azureServicePrincipal('AZURE_CREDENTIALS_ID')]) {
+                    withCredentials([
+                        string(credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZURE_SUBSCRIPTION_ID'),
+                        string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'),
+                        string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET')
+                        string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZURE_TENANT_ID')
+                    ]) {
                         sh """
                             az account set --subscription ${AZURE_SUBSCRIPTION_ID}
                             az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} --tenant ${AZURE_TENANT_ID}
