@@ -37,3 +37,22 @@
         fi
       args:
         executable: /bin/bash
+
+    -name: install Azure cli 
+      apt:
+        name: azure-cli
+        state: present
+        
+    
+    -name: install terraform 
+      apt:
+        name: terraform 
+        state: present
+        
+    - name: Add Azure CLI and Terraform to PATH
+      lineinfile:
+        dest: "~/.bashrc"
+        line: |
+         export PATH="$PATH:/usr/bin/azure-cli:/usr/bin/terraform"
+        state: present
+      become: yes
