@@ -163,7 +163,6 @@ pipeline {
                 }
             }
         }
-        stages {
         stage('Check AKS Cluster Existence') {
             steps {
                 script {
@@ -183,14 +182,10 @@ pipeline {
                         terraform apply -auto-approve
                         terraform Output
                         """
-
-                        
                     }
                 }
             }
         }
-        
-    }
     }
     
     post {  
