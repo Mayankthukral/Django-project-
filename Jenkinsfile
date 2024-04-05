@@ -1,9 +1,11 @@
 pipeline {
     agent any 
+    environment {
+        SONAR_TOKEN = credentials('Sonartoken') // Replace with your actual SonarQube token ID
+    }
     parameters {
         string(name: 'DB_NAME', defaultValue: 'crmwebsite', description: 'Database name')
         string(name: 'DB_PORT', defaultValue: '5432', description: 'Database port')
-        string(name: 'SONAR_URL', defaultValue: 'http://20.151.87.193:9000', description: 'Sonarqube URL')
         // Add more parameters as needed
     }
     
@@ -121,22 +123,32 @@ pipeline {
         stage('SonarCloud Analysis') {
             steps {
                 script {
-                    // Define the SonarScanner tool installation
-                    def scannerHome = tool 'SonarScanner'
-
-                    // Execute SonarScanner within SonarQube environment
                     withSonarQubeEnv('SonarCloud') {
-                        sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.organization=mayank-jenkins \
-                            -Dsonar.projectKey=mayank-jenkins_mayank-django \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=https://sonarcloud.io
-                        """
+                        docker.image('sonarsource/sonar-scanner-cli').inside {
+                            sh """
+                            sonar-scanner \
+                                -Dsonar.organization=mayank-jenkins \
+                                -Dsonar.projectKey=mayank-jenkins_mayank-django \
+                                -Dsonar.sources=. \
+                                -Dsonar.host.url=https://sonarcloud.io \
+                                -Dsonar.login=$SONAR_TOKEN
+                            """
+                        }
                     }
                 }
             }
         }
+        stage('Quality Gate Check') {
+            steps {
+                script {
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                    }
+                }
+            }
+        }
+    }
 
         
         stage('Build and Push Docker Image') {
