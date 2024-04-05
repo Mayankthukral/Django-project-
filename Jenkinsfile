@@ -184,28 +184,34 @@ pipeline {
         }
     
         stage('Check AKS Cluster Existence') {
-            steps {
-                script {
-                    def clusterExists = sh (
-                        script: "az aks show --resource-group myresourcegroup --name myakscluster",
-                        returnStatus: true
-                    )
-                    if (clusterExists == 0) {
-                        echo "AKS cluster exists. Skipping creation stage."
-                    } else {
-                        echo "AKS cluster does not exist. Proceeding with creation stage."
-                        sh "cd ${WORKSPACE}/kubernetescluster"
-                        sh """
-                        terraform init
-                        terraform validate
-                        terraform plan
-                        terraform apply -auto-approve
-                        terraform Output
-                        """
-                    }
+    steps {
+        script {
+            withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN')]) {
+                def clusterExists = sh (
+                    script: "az aks show --resource-group demoresourcegroup --name democluster",
+                    returnStatus: true
+                )
+                if (clusterExists == 0) {
+                    echo "AKS cluster exists. Skipping creation stage."
+                } else {
+                    echo "AKS cluster does not exist. Proceeding with creation stage."
+                    sh "cd ${WORKSPACE}/kubernetes-cluster"
+                    sh """
+                    terraform init -input=false \
+                        -backend-config="token=${TF_API_TOKEN}" \
+                        -backend-config="organization=MAYANK-THUKRAL" \
+                        -backend-config="workspaces=django-cluster"
+                    terraform validate 
+                    terraform plan
+                    terraform apply -auto-approve
+                    terraform Output
+                    """
                 }
             }
         }
+    }
+}
+
     }
     
     post {  
