@@ -149,58 +149,60 @@ pipeline {
                 }
             }
         }
-    }
     
-    stage('Build and Push Docker Image') {
-        steps {
-            script {
-                // This step should not normally be used in your script. Consult the inline help for details.
-                withDockerRegistry(credentialsId: 'docker-cred') {
-                    sh "docker build -t mayank7833/django-cicd:${BUILD_NUMBER} ."
-                    sh "docker push mayank7833/django-cicd:${BUILD_NUMBER}"
-                    // some block
+    
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // This step should not normally be used in your script. Consult the inline help for details.
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        sh "docker build -t mayank7833/django-cicd:${BUILD_NUMBER} ."
+                        sh "docker push mayank7833/django-cicd:${BUILD_NUMBER}"
+                        // some block
+                    }
                 }
             }
         }
-    }
+    
 
-    stage('Login to Azure CLI') {
-        steps {
-            script {
-                withCredentials([
-                    string(credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZURE_SUBSCRIPTION_ID'),
-                    string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'),
-                    string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET'),
-                    string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZURE_TENANT_ID')
-                ]) {
-                    sh """
-                        az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} --tenant ${AZURE_TENANT_ID} 
-                        az account set --subscription ${AZURE_SUBSCRIPTION_ID}
-                    """
+        stage('Login to Azure CLI') {
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZURE_SUBSCRIPTION_ID'),
+                        string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'),
+                        string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET'),
+                        string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZURE_TENANT_ID')
+                    ]) {
+                        sh """
+                            az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} --tenant ${AZURE_TENANT_ID} 
+                            az account set --subscription ${AZURE_SUBSCRIPTION_ID}
+                        """
+                    }
                 }
             }
         }
-    }
     
-    stage('Check AKS Cluster Existence') {
-        steps {
-            script {
-                def clusterExists = sh (
-                    script: "az aks show --resource-group myresourcegroup --name myakscluster",
-                    returnStatus: true
-                )
-                if (clusterExists == 0) {
-                    echo "AKS cluster exists. Skipping creation stage."
-                } else {
-                    echo "AKS cluster does not exist. Proceeding with creation stage."
-                    sh "cd ${WORKSPACE}/kubernetescluster"
-                    sh """
-                    terraform init
-                    terraform validate
-                    terraform plan
-                    terraform apply -auto-approve
-                    terraform Output
-                    """
+        stage('Check AKS Cluster Existence') {
+            steps {
+                script {
+                    def clusterExists = sh (
+                        script: "az aks show --resource-group myresourcegroup --name myakscluster",
+                        returnStatus: true
+                    )
+                    if (clusterExists == 0) {
+                        echo "AKS cluster exists. Skipping creation stage."
+                    } else {
+                        echo "AKS cluster does not exist. Proceeding with creation stage."
+                        sh "cd ${WORKSPACE}/kubernetescluster"
+                        sh """
+                        terraform init
+                        terraform validate
+                        terraform plan
+                        terraform apply -auto-approve
+                        terraform Output
+                        """
+                    }
                 }
             }
         }
