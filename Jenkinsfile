@@ -127,11 +127,11 @@ pipeline {
                         docker.image('sonarsource/sonar-scanner-cli').inside {
                             sh """
                             sonar-scanner \
-                                -Dsonar.organization=mayank-jenkins \
-                                -Dsonar.projectKey=mayank-jenkins_mayank-django \
-                                -Dsonar.sources=. \
-                                -Dsonar.host.url=https://sonarcloud.io \
-                                -Dsonar.login=$SONAR_TOKEN
+                               -Dsonar.organization=mayank-jenkins \
+                               -Dsonar.projectKey=mayank-jenkins_django-CICD \
+                               -Dsonar.sources=. \
+                               -Dsonar.host.url=https://sonarcloud.io \
+                               -Dsonar.login=$SONAR_TOKEN
                             """
                         }
                     }
