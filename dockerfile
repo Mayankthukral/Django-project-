@@ -2,7 +2,7 @@
 FROM python:3.8-slim
 
 # Set environment variables
-ENV DB_NAME="${params.DB_NAME}"
+ENV DB_NAME=${params.DB_NAME}
 ENV DB_USER=${DB_USER}
 ENV DB_PASSWORD=${DB_PASSWORD}
 ENV DB_HOST=newserver.postgres.database.azure.com

@@ -153,14 +153,21 @@ pipeline {
     
         stage('Build and Push Docker Image') {
             steps {
-                script {
-                    // This step should not normally be used in your script. Consult the inline help for details.
-                    withDockerRegistry(credentialsId: 'docker-cred') {
-                        sh "docker build -t mayank7833/django-cicd:${BUILD_NUMBER} ."
-                        sh "docker push mayank7833/django-cicd:${BUILD_NUMBER}"
-                        // some block
-                    }
+            script {
+                withCredentials([
+                string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+                ]) {
+               
+                withDockerRegistry(credentialsId: 'docker-cred') {
+                    env.DB_NAME = "${params.DB_NAME}"
+                    sh "docker build -t mayank7833/django-cicd:latest ."
+                    sh "docker push mayank7833/django-cicd:latest"
+                    // Add your additional steps here
                 }
+                }
+            }
             }
         }
     
@@ -183,10 +190,10 @@ pipeline {
             }
         }
     
-        stage('Check AKS Cluster Existence') {
+                stage('Check AKS Cluster Existence') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN')]){
                         def clusterExists = sh (
                             script: "az aks show --resource-group demoresourcegroup --name democluster",
                             returnStatus: true
@@ -195,23 +202,30 @@ pipeline {
                             echo "AKS cluster exists. Skipping creation stage."
                         } else {
                             echo "AKS cluster does not exist. Proceeding with creation stage."
-                            sh "cd ${WORKSPACE}/kubernetes-cluster"
-                            sh """
-                            terraform init -input=false \
-                                -backend-config="token=${TF_API_TOKEN}" \
-                                -backend-config="organization=MAYANK-THUKRAL" \
-                                -backend-config="workspaces=django-cluster"
-                            terraform validate 
-                            terraform plan
-                            terraform apply -auto-approve
-                            terraform Output
-                            """
+                            dir("${WORKSPACE}/kubernetes-cluster") {
+                                sh "terraform init"
+                                sh "terraform validate"
+                                sh "terraform plan"
+                                sh "terraform apply -auto-approve"
+                                sh "terraform output"
+                            }
+                            dir("${WORKSPACE}/kubernetes") {
+                                sh "az aks get-credentials --resource-group demoresourcegroup --name democluster --overwrite-existing"
+                                sh "kubectl apply -f deployment.yaml"
+                                echo "wait for 2 minutes to let loadbalancer get ready"
+                                sh "sleep 120"
+                                sh "kubectl get pods"
+                                sh "kubectl get svc"
+                                sh "kubectl get nodes"
+                            }
                         }
                     }
                 }
             }
         }
+
     }
+
     
     post {  
         success {
