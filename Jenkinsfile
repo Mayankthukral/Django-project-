@@ -21,6 +21,7 @@ pipeline {
                     sh 'sudo apt-get update -y'
                     sh 'sudo apt-get install software-properties-common -y'
                     sh 'sudo apt-add-repository --yes --update ppa:ansible/ansible'
+                    sh 'sudo apt-get update -y'
                     sh 'sudo apt-get install ansible -y'
                     
                     // Check Ansible version
