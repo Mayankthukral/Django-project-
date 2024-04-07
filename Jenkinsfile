@@ -16,17 +16,23 @@ pipeline {
     stages {
         stage('Install Ansible') {
             steps {
-                script {
-                    // Install Ansible using apt-get on Ubuntu
-                    sh 'sudo apt-get update -y'
-                    sh 'sudo apt-get install software-properties-common -y'
-                    //sh 'sudo apt-add-repository --yes --update ppa:ansible/ansible'
-                    sh 'sudo apt-get update -y'
-                    sh 'sudo apt-get install ansible -y'
-                    
-                    // Check Ansible version
-                    sh 'ansible --version'
+            script {
+                // Check if Ansible is already installed
+                def ansibleInstalled = sh(script: 'ansible --version', returnStatus: true)
+                if (ansibleInstalled == 0) {
+                echo 'Ansible is already installed. Skipping installation.'
+                } else {
+                // Install Ansible using apt-get on Ubuntu
+                sh 'sudo apt-get update -y'
+                sh 'sudo apt-get install software-properties-common -y'
+                //sh 'sudo apt-add-repository --yes --update ppa:ansible/ansible'
+                sh 'sudo apt-get update -y'
+                sh 'sudo apt-get install ansible -y'
+                
+                // Check Ansible version
+                sh 'ansible --version'
                 }
+            }
             }
         }
 
