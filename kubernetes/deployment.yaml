@@ -1,0 +1,42 @@
+# django-app-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app # it is used in django-app-service 
+    spec:
+      containers:
+      - name: django-app
+        image: mayank7833/django-cicd:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 512Mi
+        ports:
+        - containerPort: 8000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-app-service
+spec:
+  selector:
+    app: django-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer 
