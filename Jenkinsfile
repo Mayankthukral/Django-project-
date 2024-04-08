@@ -223,7 +223,7 @@ pipeline {
                             }
                             dir("${WORKSPACE}/kubernetes") {
                                 sh "az aks get-credentials --resource-group demoresourcegroup --name democluster --overwrite-existing"
-                                sh "kubectl apply -f DBsecrets.yaml"
+                                sh "kubectl apply -f dbsecrets.yaml"
                                 sh "kubectl apply -f deployment.yaml"
                                 echo "wait for 2 minutes to let loadbalancer get ready"
                                 sh "sleep 120"
