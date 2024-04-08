@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        app: django-app # it is used in django-app-service 
+        app: django-app
     spec:
       containers:
       - name: django-app
@@ -24,16 +24,28 @@ spec:
             memory: 512Mi
         ports:
         - containerPort: 8000
-        CMD ["gunicorn", "dcrm.wsgi:application", "--bind", "0.0.0.0:8000"]
+        args: ["gunicorn", "dcrm.wsgi:application", "--bind", "0.0.0.0:8000"]
         env:
-        - name: DATABASE_NAME
-          value: "${DB_NAME}"
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: database-name
+              key: db-name
         - name: DB_USER
-          value: "${DB_USER}"
+          valueFrom:
+            secretKeyRef:
+              name: database-user
+              key: db_user
         - name: DB_PASSWORD
-          value: "${DB_PASSWORD}"
+          valueFrom:
+            secretKeyRef:
+              name: database-password
+              key: db_password
         - name: DB_HOST
-          value: "newserver.postgres.database.azure.com"
+          valueFrom:
+            secretKeyRef:
+              name: database-host
+              key: db_host
         - name: DB_PORT
           value: "5432"
 
