@@ -16,23 +16,23 @@ pipeline {
     stages {
         stage('Install Ansible') {
             steps {
-            script {
-                // Check if Ansible is already installed
-                def ansibleInstalled = sh(script: 'ansible --version', returnStatus: true)
-                if (ansibleInstalled == 0) {
-                echo 'Ansible is already installed. Skipping installation.'
-                } else {
-                // Install Ansible using apt-get on Ubuntu
-                sh 'sudo apt-get update -y'
-                sh 'sudo apt-get install software-properties-common -y'
-                //sh 'sudo apt-add-repository --yes --update ppa:ansible/ansible'
-                sh 'sudo apt-get update -y'
-                sh 'sudo apt-get install ansible -y'
-                
-                // Check Ansible version
-                sh 'ansible --version'
+                script {
+                    // Check if Ansible is already installed
+                    def ansibleInstalled = sh(script: 'ansible --version', returnStatus: true)
+                    if (ansibleInstalled == 0) {
+                        echo 'Ansible is already installed. Skipping installation.'
+                    } else {
+                        // Install Ansible using apt-get on Ubuntu
+                        sh 'sudo apt-get update -y'
+                        sh 'sudo apt-get install software-properties-common -y'
+                        //sh 'sudo apt-add-repository --yes --update ppa:ansible/ansible'
+                        sh 'sudo apt-get update -y'
+                        sh 'sudo apt-get install ansible -y'
+                        
+                        // Check Ansible version
+                        sh 'ansible --version'
+                    }
                 }
-            }
             }
         }
 
@@ -139,6 +139,7 @@ pipeline {
                                -Dsonar.sources=. \
                                -Dsonar.host.url=https://sonarcloud.io \
                                -Dsonar.login=$SONAR_TOKEN
+                               -Dsonar.version=${BUILD_NUMBER}
                             """
                         }
                     }
@@ -160,21 +161,20 @@ pipeline {
     
         stage('Build and Push Docker Image') {
             steps {
-            script {
-                withCredentials([
-                string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
-                string(credentialsId: 'DB_USER', variable: 'DB_USER'),
-                string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
-                ]) {
-               
-                withDockerRegistry(credentialsId: 'docker-cred') {
-                    env.DB_NAME = "${params.DB_NAME}"
-                    sh "docker build -t mayank7833/django-cicd:latest ."
-                    sh "docker push mayank7833/django-cicd:latest"
-                    // Add your additional steps here
+                script {
+                    withCredentials([
+                        string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                        string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                        string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+                    ]) {
+                        withDockerRegistry(credentialsId: 'docker-cred') {
+                            env.DB_NAME = "${params.DB_NAME}"
+                            sh "docker build -t mayank7833/django-cicd:latest ."
+                            sh "docker push mayank7833/django-cicd:latest"
+                            // Add your additional steps here
+                        }
+                    }
                 }
-                }
-            }
             }
         }
     
@@ -197,10 +197,16 @@ pipeline {
             }
         }
     
-                stage('Check AKS Cluster Existence') {
+        stage('Check AKS Cluster Existence') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN')]){
+                    withCredentials([
+                        string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN'),
+                        string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
+                        string(credentialsId: 'DB_USER', variable: 'DB_USER')
+                    ]){
+                        env.DB_NAME = "${params.DB_NAME}"
+                        env.DB_PORT = "${params.DB_PORT}"
                         def clusterExists = sh (
                             script: "az aks show --resource-group demoresourcegroup --name democluster",
                             returnStatus: true
@@ -232,7 +238,6 @@ pipeline {
         }
 
     }
-
     
     post {  
         success {
