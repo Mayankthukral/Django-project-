@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: django-app
-        image: mayank7833/midnight:latest
+        image: mayank7833/django-cicd:latest
         resources:
           requests:
             cpu: 100m
