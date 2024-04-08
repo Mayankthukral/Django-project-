@@ -2,11 +2,7 @@
 FROM python:3.8-slim
 
 # Set environment variables
-ENV DB_NAME=${DB_NAME}
-ENV DB_USER=${DB_USER}
-ENV DB_PASSWORD=${DB_PASSWORD}
-ENV DB_HOST=newserver.postgres.database.azure.com
-ENV DB_PORT=5432
+
 
 # Set the working directory in the container
 WORKDIR /app
@@ -15,7 +11,8 @@ WORKDIR /app
 COPY requirements.txt /app/
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install gunicorn
 
 # Copy the rest of the application code into the container at /app
 COPY . /app/
@@ -25,4 +22,4 @@ COPY . /app/
 EXPOSE 8000
 
 # Run the application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "dcrm.wsgi:application", "--bind", "0.0.0.0:8000"]

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: django-app
-        image: mayank7833/django-cicd:latest
+        image: mayank7833/midnight:latest
         resources:
           requests:
             cpu: 100m
@@ -24,6 +24,7 @@ spec:
             memory: 512Mi
         ports:
         - containerPort: 8000
+        CMD ["gunicorn", "dcrm.wsgi:application", "--bind", "0.0.0.0:8000"]
         env:
         - name: DATABASE_NAME
           value: "${DB_NAME}"
