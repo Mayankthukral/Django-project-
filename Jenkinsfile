@@ -168,8 +168,9 @@ pipeline {
                     ]) {
                         withDockerRegistry(credentialsId: 'docker-cred') {
                             env.DB_NAME = "${params.DB_NAME}"
-                            sh "docker build -t mayank7833/django-cicd:latest ."
-                            sh "docker push mayank7833/django-cicd:latest"
+                            def buildNumber = env.BUILD_NUMBER
+                            sh "docker build -t mayank7833/django-cicd:${buildNumber} ."
+                            sh "docker push mayank7833/django-cicd:${buildNumber}"
                             // Add your additional steps here
                         }
                     }
@@ -203,6 +204,10 @@ pipeline {
                         string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN'),
                         string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
                         string(credentialsId: 'DB_USER', variable: 'DB_USER')
+                        string(credentialsId: 'db-name-secret-base64', variable: 'db-name-secret-base64')
+                        string(credentialsId: 'db_user-secret-base64', variable: 'db_user-secret-base64')
+                        string(credentialsId: 'db_password-secret-base64', variable: 'db_password-secret-base64')
+                        string(credentialsId: 'database-host-secret-base64', variable: 'database-host-secret-base64')
                     ]){
                         env.DB_NAME = "${params.DB_NAME}"
                         env.DB_PORT = "${params.DB_PORT}"
