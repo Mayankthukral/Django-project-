@@ -203,10 +203,10 @@ pipeline {
                     withCredentials([
                         string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN'),
                         string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
-                        string(credentialsId: 'DB_USER', variable: 'DB_USER')
-                        string(credentialsId: 'db-name-secret-base64', variable: 'db-name-secret-base64')
-                        string(credentialsId: 'db_user-secret-base64', variable: 'db_user-secret-base64')
-                        string(credentialsId: 'db_password-secret-base64', variable: 'db_password-secret-base64')
+                        string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                        string(credentialsId: 'db-name-secret-base64', variable: 'db-name-secret-base64'),
+                        string(credentialsId: 'db_user-secret-base64', variable: 'db_user-secret-base64'),
+                        string(credentialsId: 'db_password-secret-base64', variable: 'db_password-secret-base64'),
                         string(credentialsId: 'database-host-secret-base64', variable: 'database-host-secret-base64')
                     ]){
                         env.DB_NAME = "${params.DB_NAME}"
