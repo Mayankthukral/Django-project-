@@ -242,6 +242,24 @@ pipeline {
             }
         }
 
+        stage('Update Deployment File') {
+        environment {
+            GIT_REPO_NAME = "Django-project-"
+            GIT_USER_NAME = "mayank91091"
+        }
+        steps {
+            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                sh '''
+                    git config user.email "mayankthukral1810@gmail.com"
+                    git config user.name "Mayankthukral"
+                    BUILD_NUMBER=${BUILD_NUMBER}
+                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" Django-project-/kubernetes/deployment.yml
+                    git add Django-project-/kubernetes/deployment.yml
+                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:testing
+                '''
+            }
+
     }
     
     post {  
