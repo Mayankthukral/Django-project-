@@ -228,10 +228,10 @@ pipeline {
                             }
                             dir("${WORKSPACE}/kubernetes") {
                                 sh "az aks get-credentials --resource-group demoresourcegroup --name democluster --overwrite-existing"
-                                sh "kubectl apply -f dbsecrets.yaml"
-                                sh "kubectl apply -f deployment.yaml"
-                                echo "wait for 2 minutes to let loadbalancer get ready"
-                                sh "sleep 120"
+                                sh "kubectl create namespace argocd"
+                                sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
+                                sh "kubectl patch svc argocd-server -n argocd --type='json' -p '[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"LoadBalancer\"}]'"
+                                sh "kubectl get secret -n argocd argocd-server -o jsonpath='{.data.admin\\.password}' | base64 --decode ; echo"
                                 sh "kubectl get pods"
                                 sh "kubectl get svc"
                                 sh "kubectl get nodes"
@@ -243,33 +243,34 @@ pipeline {
         }
 
         stage('Update Deployment File') {
-        environment {
-            GIT_REPO_NAME = "Django-project-"
-            GIT_USER_NAME = "mayank91091"
-        }
-        steps {
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                sh '''
-                    git config user.email "mayankthukral1810@gmail.com"
-                    git config user.name "Mayankthukral"
-                    BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" Django-project-/kubernetes/deployment.yml
-                    git add Django-project-/kubernetes/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:testing
-                '''
+            environment {
+                GIT_REPO_NAME = "Django-project-"
+                GIT_USER_NAME = "mayank91091"
             }
-
-    }
-    
-    post {  
-        success {
-            // Send notification on success
-            echo 'Pipeline succeeded!'
+            steps {
+                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                        git config user.email "mayankthukral1810@gmail.com"
+                        git config user.name "Mayankthukral"
+                        BUILD_NUMBER=${BUILD_NUMBER}
+                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" Django-project-/kubernetes/deployment.yaml
+                        git add Django-project-/kubernetes/deployment.yaml
+                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:testing
+                    '''
+                }
+            }
         }
-        failure {
-            // Send notification on failure
-            echo 'Pipeline failed!'
+    
+        post {  
+            success {
+                // Send notification on success
+                echo 'Pipeline succeeded!'
+            }
+            failure {
+                // Send notification on failure
+                echo 'Pipeline failed!'
+            }
         }
     }
 }

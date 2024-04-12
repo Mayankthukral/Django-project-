@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: django-app
+  namespace: django 
 spec:
   replicas: 1
   selector:
@@ -55,6 +56,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: django-app-service
+  namespace: django 
 spec:
   selector:
     app: django-app
