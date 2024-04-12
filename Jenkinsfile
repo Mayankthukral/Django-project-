@@ -256,7 +256,7 @@ pipeline {
                         git config user.email "mayankthukral1810@gmail.com"
                         git config user.name "Mayankthukral"
                         
-                        def newImageTag = 'django-cicd:${BUILD_NUMBER}'
+                        def newImageTag = "django-cicd:${BUILD_NUMBER}"
                     
                     // Navigate to the directory containing your deployment.yaml
                     dir('kubernetes') {
