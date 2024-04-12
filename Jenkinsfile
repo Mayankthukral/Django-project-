@@ -252,24 +252,25 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                    sh '''
-                        git config user.email "mayankthukral1810@gmail.com"
-                        git config user.name "Mayankthukral"
-                        
+                    script {
+                        // Define newImageTag using double quotes for interpolation
                         def newImageTag = "django-cicd:${BUILD_NUMBER}"
-                    
-                    // Navigate to the directory containing your deployment.yaml
-                    dir('kubernetes') {
-                        // Use sed to replace any existing image tag with the new one
-                        sh "sed -i 's|image: .*|image: ${newImageTag}|' deployment.yaml"
-                        sh "git add deployment.yaml"
-                        sh "git commit -m 'Update deployment image to version ${BUILD_NUMBER}'"
-                        sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:testing"
-                    '''
+
+                        // Configure Git user details
+                        sh "git config user.email 'mayankthukral1810@gmail.com'"
+                        sh "git config user.name 'Mayankthukral'"
+
+                        // Navigate to the directory containing your deployment.yaml
+                        dir('kubernetes') {
+                            sh "sed -i 's|image: .*|image: ${newImageTag}|' deployment.yaml"
+                            sh "git add deployment.yaml"
+                            sh "git commit -m 'Update deployment image to version ${BUILD_NUMBER}'"
+                            sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:testing"
+                        }
+                    }
                 }
             }
         }
-
     }
 
     post {  
@@ -282,5 +283,4 @@ pipeline {
             echo 'Pipeline failed!'
         }
     }
-    
 }
