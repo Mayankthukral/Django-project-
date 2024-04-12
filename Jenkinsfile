@@ -231,9 +231,12 @@ pipeline {
                                 sh "kubectl create namespace argocd"
                                 sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
                                 sh "kubectl patch svc argocd-server -n argocd --type='json' -p '[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"LoadBalancer\"}]'"
-                                sh "kubectl get secret -n argocd argocd-server -o jsonpath='{.data.admin\\.password}' | base64 --decode ; echo"
-                                sh "kubectl get pods"
-                                sh "kubectl get svc"
+                                sh "kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data\\.password}' | base64 --decode ; echo"
+                                sh "wait for 2 minutes to let loadbalancer get public IP"
+                                sh "sleep 120"
+                                
+                                sh "kubectl get pods -n argocd"
+                                sh "kubectl get svc -n argocd "
                                 sh "kubectl get nodes"
                             }
                         }
@@ -245,18 +248,23 @@ pipeline {
         stage('Update Deployment File') {
             environment {
                 GIT_REPO_NAME = "Django-project-"
-                GIT_USER_NAME = "mayank91091"
+                GIT_USER_NAME = "Mayankthukral"
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                     sh '''
                         git config user.email "mayankthukral1810@gmail.com"
                         git config user.name "Mayankthukral"
-                        BUILD_NUMBER=${BUILD_NUMBER}
-                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" Django-project-/kubernetes/deployment.yaml
-                        git add Django-project-/kubernetes/deployment.yaml
-                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:testing
+                        
+                        def newImageTag = 'django-cicd:{BUILD_NUMBER}'
+                    
+                    // Navigate to the directory containing your deployment.yaml
+                    dir('kubernetes') {
+                        // Use sed to replace any existing image tag with the new one
+                        sh "sed -i 's|image: .*|image: ${newImageTag}|' deployment.yaml"
+                        sh "git add deployment.yaml"
+                        sh "git commit -m 'Update deployment image to version ${BUILD_NUMBER}'"
+                        sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:testing"
                     '''
                 }
             }
