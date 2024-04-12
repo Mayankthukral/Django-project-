@@ -261,16 +261,18 @@ pipeline {
                 }
             }
         }
-    
-        post {  
-            success {
-                // Send notification on success
-                echo 'Pipeline succeeded!'
-            }
-            failure {
-                // Send notification on failure
-                echo 'Pipeline failed!'
-            }
+
+    }
+
+    post {  
+        success {
+            // Send notification on success
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            // Send notification on failure
+            echo 'Pipeline failed!'
         }
     }
+    
 }
