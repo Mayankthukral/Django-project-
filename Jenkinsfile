@@ -244,8 +244,27 @@ pipeline {
                 }
             }
         }
+         stages {
+        stage('Check Changes') {
+            steps {
+                script {
+                    // Fetch changes using Git and store them in a temporary file
+                    sh "git config user.email 'mayankthukral1810@gmail.com'"
+                    sh "git config user.name 'Mayankthukral'"
+                    sh "git fetch origin"
+                    sh "git diff --name-only HEAD^ HEAD > changed_files.txt"
+                }
+            }
+        }
 
         stage('Update Deployment File') {
+             when {
+                
+                expression {
+                    def changedFiles = readFile('changed_files.txt').trim()
+                    !changedFiles.split("\n").any { it.startsWith("kubernetes/") }
+                }
+            }
             environment {
                 GIT_REPO_NAME = "Django-project-"
                 GIT_USER_NAME = "Mayankthukral"
