@@ -209,7 +209,7 @@ pipeline {
                         string(credentialsId: 'db_user-secret-base64', variable: 'db_user-secret-base64'),
                         string(credentialsId: 'db_password-secret-base64', variable: 'db_password-secret-base64'),
                         string(credentialsId: 'database-host-secret-base64', variable: 'database-host-secret-base64')
-                    ]){
+                    ]) {
                         env.DB_NAME = "${params.DB_NAME}"
                         env.DB_PORT = "${params.DB_PORT}"
                         def clusterExists = sh (
@@ -229,7 +229,50 @@ pipeline {
                             }
                             dir("${WORKSPACE}/kubernetes") {
                                 sh "az aks get-credentials --resource-group demoresourcegroup --name democluster --overwrite-existing"
-                                sh "envsubst < dbsecrets.yaml | kubectl apply -f -"
+                                sh """
+                                cat <<EOF | kubectl apply -f - -n django || true
+                                apiVersion: v1
+                                kind: Secret
+                                metadata:
+                                    name: database-name
+                                type: Opaque
+                                data:
+                                    db-name: ${'db-name-secret-base64'}
+                                EOF
+                                """
+                                sh """
+                                cat <<EOF | kubectl apply -f - -n django || true
+                                apiVersion: v1
+                                kind: Secret
+                                metadata:
+                                    name: database-user
+                                type: Opaque
+                                data:
+                                    db_user: ${'db_user-secret-base64'}
+                                EOF
+                                """
+                                sh """
+                                cat <<EOF | kubectl apply -f - -n django || true
+                                apiVersion: v1
+                                kind: Secret
+                                metadata:
+                                    name: database-password
+                                type: Opaque
+                                data:
+                                    db_password: ${'db_password-secret-base64'}
+                                EOF
+                                """
+                                sh """
+                                cat <<EOF | kubectl apply -f - -n django || true
+                                apiVersion: v1
+                                kind: Secret
+                                metadata:
+                                    name: database-host
+                                type: Opaque
+                                data:
+                                    db_host: ${'database-host-secret-base64'}
+                                EOF
+                                """
                                 sh "kubectl create namespace argocd"
                                 sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
                                 sh "kubectl patch svc argocd-server -n argocd --type='json' -p '[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"LoadBalancer\"}]'"
@@ -237,7 +280,6 @@ pipeline {
                                 sh "kubectl delete secret -n argocd argocd-initial-admin-secret"
                                 sh "wait for 2 minutes to let loadbalancer get public IP"
                                 sh "sleep 120"
-                                
                                 sh "kubectl get pods -n argocd"
                                 sh "kubectl get svc -n argocd "
                                 sh "kubectl get nodes"
