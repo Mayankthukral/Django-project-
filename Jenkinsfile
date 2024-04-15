@@ -85,6 +85,7 @@ pipeline {
         }
         
         stage('Database Migration') {
+
             steps {
                 script {
                     withCredentials([
@@ -228,10 +229,12 @@ pipeline {
                             }
                             dir("${WORKSPACE}/kubernetes") {
                                 sh "az aks get-credentials --resource-group demoresourcegroup --name democluster --overwrite-existing"
+                                sh "envsubst < dbsecrets.yaml | kubectl apply -f -"
                                 sh "kubectl create namespace argocd"
                                 sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
                                 sh "kubectl patch svc argocd-server -n argocd --type='json' -p '[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"LoadBalancer\"}]'"
-                                sh "kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data\\.password}' | base64 --decode ; echo"
+                                sh "kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode"
+                                sh "kubectl delete secret -n argocd argocd-initial-admin-secret"
                                 sh "wait for 2 minutes to let loadbalancer get public IP"
                                 sh "sleep 120"
                                 
