@@ -229,55 +229,28 @@ pipeline {
                             }
                             dir("${WORKSPACE}/kubernetes") {
                                 sh "az aks get-credentials --resource-group demoresourcegroup --name democluster --overwrite-existing"
-                                sh """
-                                cat <<EOF | kubectl apply -f - -n django || true
-                                apiVersion: v1
-                                kind: Secret
-                                metadata:
-                                    name: database-name
-                                type: Opaque
-                                data:
-                                    db-name: ${'db-name-secret-base64'}
-                                EOF
-                                """
-                                sh """
-                                cat <<EOF | kubectl apply -f - -n django || true
-                                apiVersion: v1
-                                kind: Secret
-                                metadata:
-                                    name: database-user
-                                type: Opaque
-                                data:
-                                    db_user: ${'db_user-secret-base64'}
-                                EOF
-                                """
-                                sh """
-                                cat <<EOF | kubectl apply -f - -n django || true
-                                apiVersion: v1
-                                kind: Secret
-                                metadata:
-                                    name: database-password
-                                type: Opaque
-                                data:
-                                    db_password: ${'db_password-secret-base64'}
-                                EOF
-                                """
-                                sh """
-                                cat <<EOF | kubectl apply -f - -n django || true
-                                apiVersion: v1
-                                kind: Secret
-                                metadata:
-                                    name: database-host
-                                type: Opaque
-                                data:
-                                    db_host: ${'database-host-secret-base64'}
-                                EOF
-                                """
+                               
+                                sh '''
+                                kubectl create secret generic database-name \
+                                    --from-literal=db-name="$db-name-secret-base64"
+                                '''
+                                sh '''
+                                kubectl create secret generic database-user \
+                                    --from-literal=db_user="$db_user-secret-base64"
+                                '''
+                                sh '''
+                                kubectl create secret generic database-password \
+                                    --from-literal=db_password="$db_password-secret-base64"
+                                '''
+                                sh '''
+                                kubectl create secret generic database-host \
+                                    --from-literal=db_host="$database-host-secret-base64"
+                                '''
                                 sh "kubectl create namespace argocd"
+
                                 sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
                                 sh "kubectl patch svc argocd-server -n argocd --type='json' -p '[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"LoadBalancer\"}]'"
-                                sh "kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode"
-                                sh "kubectl delete secret -n argocd argocd-initial-admin-secret"
+                                
                                 sh "wait for 2 minutes to let loadbalancer get public IP"
                                 sh "sleep 120"
                                 sh "kubectl get pods -n argocd"
