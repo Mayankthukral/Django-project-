@@ -229,7 +229,7 @@ pipeline {
                             }
                             dir("${WORKSPACE}/kubernetes") {
                                 sh "az aks get-credentials --resource-group demoresourcegroup --name democluster --overwrite-existing"
-                                sh "kubectl create namesoace django "
+                                sh "kubectl create namespace django "
                                 sh '''
                                 kubectl create secret generic database-name \
                                     --from-literal=db-name="$db-name-secret-base64" -n django 
