@@ -290,7 +290,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                     script {
                         // Define newImageTag using double quotes for interpolation
-                        def newImageTag = "django-cicd:${BUILD_NUMBER}"
+                        def newImageTag = "mayank7833/django-cicd:${BUILD_NUMBER}"
 
                         // Configure Git user details
                         sh "git config user.email 'mayankthukral1810@gmail.com'"
