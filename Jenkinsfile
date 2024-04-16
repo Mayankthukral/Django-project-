@@ -229,31 +229,15 @@ pipeline {
                             }
                             dir("${WORKSPACE}/kubernetes") {
                                 sh "az aks get-credentials --resource-group demoresourcegroup --name democluster --overwrite-existing"
-                               
-                                sh '''
-                                kubectl create secret generic database-name \
-                                    --from-literal=db-name="$db-name-secret-base64"
-                                '''
-                                sh '''
-                                kubectl create secret generic database-user \
-                                    --from-literal=db_user="$db_user-secret-base64"
-                                '''
-                                sh '''
-                                kubectl create secret generic database-password \
-                                    --from-literal=db_password="$db_password-secret-base64"
-                                '''
-                                sh '''
-                                kubectl create secret generic database-host \
-                                    --from-literal=db_host="$database-host-secret-base64"
-                                '''
+                                sh "kubectl create secret generic database-name --from-literal=db-name='$db-name-secret-base64' -n django"
+                                sh "kubectl create secret generic database-user --from-literal=db_user='$db_user-secret-base64' -n django"
+                                sh "kubectl create secret generic database-password --from-literal=db_password='$db_password-secret-base64' -n django"
+                                sh "kubectl create secret generic database-host --from-literal=db_host='$database-host-secret-base64' -n django"
                                 sh "kubectl create namespace argocd"
-
                                 sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
                                 sh "kubectl patch svc argocd-server -n argocd --type='json' -p '[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"LoadBalancer\"}]'"
-                                
                                 sh "sleep 120" // wait for 2 minutes to let the loadbalacer get Public IP address
                                 sh "kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode"
-                                
                                 sh "kubectl get pods -n argocd"
                                 sh "kubectl get svc -n argocd "
                                 sh "kubectl get nodes"
