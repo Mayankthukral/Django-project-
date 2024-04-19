@@ -232,22 +232,23 @@ pipeline {
                                 sh "kubectl create namespace django "
                                 sh '''
                                 kubectl create secret generic database-name \
-                                    --from-literal=db-name="$db-name-secret-base64" -n django 
+                                    --from-literal=db-name="${db-name-secret-base64}" -n django 
                                 '''
 
-                                 sh '''
+                                sh '''
                                 kubectl create secret generic database-user \
-                                    --from-literal=db_user="$db_user-secret-base64" -n django
+                                    --from-literal=db_user="${db_user-secret-base64}" -n django
                                 '''
-                                 sh '''
+                                sh '''
                                 kubectl create secret generic database-password \
-                                    --from-literal=db_password="$db_password-secret-base64" -n django
+                                    --from-literal=db_password="${db_password-secret-base64}" -n django
                                 '''
                                 sh '''
                                 kubectl create secret generic database-host \
-                                    --from-literal=db_host="$database-host-secret-base64" -n django
+                                    --from-literal=db_host="${database-host-secret-base64}" -n django
                                 '''
-                                
+                                sh '''
+
                                 sh "kubectl create namespace argocd"
                                 sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
                                 sh "kubectl patch svc argocd-server -n argocd --type='json' -p '[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"LoadBalancer\"}]'"
@@ -255,6 +256,23 @@ pipeline {
                                 sh "kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode"
                                 sh "kubectl get pods -n argocd"
                                 sh "kubectl get svc -n argocd "
+                                sh "ARGOCD_EXTERNAL_IP=$(kubectl get svc -n argocd argocd-server -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
+                                sh "ARGOCD_PASSWORD=$(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)"
+                                sh "argocd login \"$ARGOCD_EXTERNAL_IP\" --username admin --password \"$ARGOCD_PASSWORD\" --insecure"
+                                sh " argocd cluster add democluster --yes"
+                                sh " kubectl config set-context --current --namespace=argocd "
+                                sh """
+                                argocd app create django \
+                                    --repo https://github.com/Mayankthukral/Django-project- \
+                                    --path kubernetes \
+                                    --dest-server https://kubernetes.default.svc \
+                                    --dest-namespace django \
+                                    --sync-policy automated \
+                                    --auto-prune \
+                                    --self-heal \
+                                    --auto-sync-period 10s
+                                """
+                                sh "argocd app sync django"
                                 sh "kubectl get nodes"
                             }
                         }
