@@ -252,12 +252,13 @@ pipeline {
                                 sh "kubectl create namespace argocd"
                                 sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
                                 sh "kubectl patch svc argocd-server -n argocd --type='json' -p '[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"LoadBalancer\"}]'"
-                                sh "sleep 120" // wait for 2 minutes to let the loadbalacer get Public IP address
+                                sh "sleep 120" // wait for 2 minutes to let the argocd-server loadbalacer get Public IP address
                                 sh "kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode"
                                 sh "kubectl get pods -n argocd"
                                 sh "kubectl get svc -n argocd "
-                                sh "ARGOCD_EXTERNAL_IP=$(kubectl get svc -n argocd argocd-server -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
-                                sh "ARGOCD_PASSWORD=$(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)"
+                                sh "ARGOCD_EXTERNAL_IP=\$(kubectl get svc -n argocd argocd-server -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
+                                sh "ARGOCD_PASSWORD=\$(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)"
+
                                 sh "argocd login \"$ARGOCD_EXTERNAL_IP\" --username admin --password \"$ARGOCD_PASSWORD\" --insecure"
                                 sh " argocd cluster add democluster --yes"
                                 sh " kubectl config set-context --current --namespace=argocd "
@@ -273,6 +274,8 @@ pipeline {
                                     --auto-sync-period 10s
                                 '''
                                 sh "argocd app sync django"
+                                sh "sleep 120" // wait for 2 minutes to let the django-apploadbalacer get Public IP address
+                                sh "kubectl get svc -n django"
                                 sh "kubectl get nodes"
                             }
                         }
