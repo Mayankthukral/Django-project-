@@ -82,12 +82,13 @@
           sudo apt-get update -y
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-    -name: Install ArgoCD
-     shell: |
+    - name: Install ArgoCD
+      shell: |
         curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
         sudo install -m 755 argocd-linux-amd64 /usr/local/bin/argocd
         rm argocd-linux-amd64  # Clean up the downloaded installer file
         echo "ArgoCD installed successfully"
       become: yes
+
 
 
