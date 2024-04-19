@@ -89,6 +89,5 @@
         rm argocd-linux-amd64  # Clean up the downloaded installer file
         echo "ArgoCD installed successfully"
       become: yes
-```
 
 
