@@ -247,7 +247,7 @@ pipeline {
                                 kubectl create secret generic database-host \
                                     --from-literal=db_host="${database-host-secret-base64}" -n django
                                 '''
-                                sh '''
+                                
 
                                 sh "kubectl create namespace argocd"
                                 sh "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
@@ -261,7 +261,7 @@ pipeline {
                                 sh "argocd login \"$ARGOCD_EXTERNAL_IP\" --username admin --password \"$ARGOCD_PASSWORD\" --insecure"
                                 sh " argocd cluster add democluster --yes"
                                 sh " kubectl config set-context --current --namespace=argocd "
-                                sh """
+                                sh '''
                                 argocd app create django \
                                     --repo https://github.com/Mayankthukral/Django-project- \
                                     --path kubernetes \
@@ -271,7 +271,7 @@ pipeline {
                                     --auto-prune \
                                     --self-heal \
                                     --auto-sync-period 10s
-                                """
+                                '''
                                 sh "argocd app sync django"
                                 sh "kubectl get nodes"
                             }
