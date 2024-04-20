@@ -170,6 +170,7 @@ pipeline {
                         withDockerRegistry(credentialsId: 'docker-cred') {
                             env.DB_NAME = "${params.DB_NAME}"
                             def buildNumber = env.BUILD_NUMBER
+                            sh " docker system prune --all" // clear all unsuswd images on node 
                             sh "docker build -t mayank7833/django-cicd:${buildNumber} ."
                             sh "docker push mayank7833/django-cicd:${buildNumber}"
                             // Add your additional steps here
@@ -201,6 +202,7 @@ pipeline {
         stage('Check AKS Cluster Existence') {
             steps {
                 script {
+                    set -x // Enable verbose mode for this Stage
                     withCredentials([
                         string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN'),
                         string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
