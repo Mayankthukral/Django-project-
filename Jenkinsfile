@@ -199,10 +199,12 @@ pipeline {
             }
         }
     
-        stage('Check AKS Cluster Existence') {
+        stage('Check AKS Cluster Existence') { 
             steps {
                 script {
-                    set -x // Enable verbose mode for this Stage
+
+                    sh "set -x" // add verbose to this stage
+                  
                     withCredentials([
                         string(credentialsId: 'TF_TOKEN', variable: 'TF_API_TOKEN'),
                         string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
